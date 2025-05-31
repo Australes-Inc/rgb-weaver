@@ -109,7 +109,7 @@ class RGBWeaverPipeline:
         Raises:
             PipelineError: If any step fails
         """
-        logger.info(" Starting RGB Weaver pipeline")
+        logger.info("Starting RGB Weaver pipeline")
         logger.info(f"Input DEM: {self.input_dem}")
         logger.info(f"Output directory: {self.output_dir}")
         logger.info(f"Zoom range: {self.min_zoom} - {self.max_zoom}")
@@ -133,17 +133,17 @@ class RGBWeaverPipeline:
             # Step 5: Cleanup
             self._cleanup()
             
-            logger.info(" Pipeline completed successfully!")
-            logger.info(f" Output available at: {self.output_dir}")
+            logger.info("Pipeline completed successfully!")
+            logger.info(f"Output available at: {self.output_dir}")
             
         except Exception as e:
-            logger.error(f" Pipeline failed: {e}")
+            logger.error(f"Pipeline failed: {e}")
             self._cleanup_on_error()
             raise PipelineError(f"Pipeline execution failed: {e}")
     
     def _setup_output_directory(self) -> None:
         """Setup the output directory structure."""
-        logger.info(" Setting up output directory...")
+        logger.info("Setting up output directory...")
         
         try:
             # Create main output directory
@@ -162,7 +162,7 @@ class RGBWeaverPipeline:
     
     def _extract_metadata(self) -> None:
         """Extract metadata from input DEM."""
-        logger.info(" Extracting DEM metadata...")
+        logger.info("Extracting DEM metadata...")
         
         try:
             self.dem_info = extract_dem_metadata(self.input_dem, compute_stats=True)
@@ -170,18 +170,18 @@ class RGBWeaverPipeline:
             # Log key information
             bounds = self.dem_info.bounds_wgs84
             center = self.dem_info.center_wgs84
-            logger.info(f" Bounds (WGS84): {bounds}")
-            logger.info(f" Center (WGS84): {center}")
+            logger.info(f"Bounds (WGS84): {bounds}")
+            logger.info(f"Center (WGS84): {center}")
             
             if self.dem_info.min_value is not None and self.dem_info.max_value is not None:
-                logger.info(f"📈 Value range: {self.dem_info.min_value} to {self.dem_info.max_value}")
+                logger.info(f"Value range: {self.dem_info.min_value} to {self.dem_info.max_value}")
             
         except Exception as e:
             raise PipelineError(f"Failed to extract DEM metadata: {e}")
     
     def _generate_mbtiles(self) -> None:
         """Generate MBTiles using rio-rgbify."""
-        logger.info("🔧 Generating MBTiles with rio-rgbify...")
+        logger.info(" Generating MBTiles with rio-rgbify...")
         
         try:
             # Create temporary MBTiles file
@@ -223,7 +223,7 @@ class RGBWeaverPipeline:
             if not self.mbtiles_path.exists():
                 raise PipelineError("MBTiles file was not created")
             
-            logger.info(f" MBTiles generated: {self.mbtiles_path}")
+            logger.info(f"MBTiles generated: {self.mbtiles_path}")
             
         except subprocess.SubprocessError as e:
             raise PipelineError(f"Failed to run rio-rgbify: {e}")
@@ -232,14 +232,17 @@ class RGBWeaverPipeline:
     
     def _extract_tiles(self) -> None:
         """Extract tiles from MBTiles using mbutil."""
-        logger.info(" Extracting tiles with mbutil...")
+        logger.info("Extracting tiles with mbutil...")
         
         try:
-            # Build mbutil command
+            # Create a temporary extraction directory
+            temp_tiles_dir = self.temp_dir / "extracted_tiles"
+            
+            # Build mbutil command (extract to temp dir first)
             cmd = [
                 'mb-util',
                 str(self.mbtiles_path),
-                str(self.tiles_dir),
+                str(temp_tiles_dir),
                 '--scheme', self.scheme,
                 '--image_format', self.format,
                 '--silent'
@@ -262,13 +265,20 @@ class RGBWeaverPipeline:
                 
                 pbar.update(1)
             
-            # Verify tiles were extracted
-            if not any(self.tiles_dir.iterdir()):
+            # Move extracted tiles to final destination
+            if temp_tiles_dir.exists():
+                # Remove existing tiles directory if it exists
+                if self.tiles_dir.exists():
+                    shutil.rmtree(self.tiles_dir)
+                
+                # Move the extracted tiles
+                shutil.move(str(temp_tiles_dir), str(self.tiles_dir))
+            else:
                 raise PipelineError("No tiles were extracted")
             
             # Count extracted tiles
             tile_count = sum(1 for _ in self.tiles_dir.rglob(f"*.{self.format}"))
-            logger.info(f" Extracted {tile_count} tiles")
+            logger.info(f"Extracted {tile_count} tiles")
             
         except subprocess.SubprocessError as e:
             raise PipelineError(f"Failed to run mbutil: {e}")
@@ -277,7 +287,7 @@ class RGBWeaverPipeline:
     
     def _generate_tilejson(self) -> None:
         """Generate tiles.json metadata file."""
-        logger.info(" Generating tiles.json...")
+        logger.info("Generating tiles.json...")
         
         try:
             if self.dem_info is None:
@@ -306,7 +316,7 @@ class RGBWeaverPipeline:
                 **self.kwargs
             )
             
-            logger.info(f" TileJSON generated: {tilejson_path}")
+            logger.info(f"TileJSON generated: {tilejson_path}")
             
         except Exception as e:
             raise PipelineError(f"TileJSON generation failed: {e}")
@@ -324,7 +334,7 @@ class RGBWeaverPipeline:
     
     def _cleanup_on_error(self) -> None:
         """Clean up files on error."""
-        logger.debug(" Cleaning up after error...")
+        logger.debug("Cleaning up after error...")
         
         try:
             # Clean temporary directory
