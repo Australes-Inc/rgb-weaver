@@ -21,7 +21,7 @@ def get_version():
                     return line.split('=')[1].strip().strip('"').strip("'")
     except FileNotFoundError:
         pass
-    return '0.1.0'
+    return '1.0.0'
 
 setup(
     name='rgb-weaver',

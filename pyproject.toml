@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "rgb-weaver"
-version = "0.1.0"
+version = "1.0.0"
 description = "Generate terrain RGB raster tiles directly from a DEM using gdal, rio-rgbify and mbutil"
 readme = "README.md"
 requires-python = ">=3.8"
