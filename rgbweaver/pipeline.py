@@ -181,7 +181,7 @@ class RGBWeaverPipeline:
     
     def _generate_mbtiles(self) -> None:
         """Generate MBTiles using rio-rgbify."""
-        logger.info(" Generating MBTiles with rio-rgbify...")
+        logger.info("Generating MBTiles with rio-rgbify...")
         
         try:
             # Create temporary MBTiles file
@@ -295,9 +295,9 @@ class RGBWeaverPipeline:
             
             # Determine tile URL template based on scheme
             if self.scheme == "tms":
-                tile_template = "./tiles/{z}/{x}/{y}." + self.format
+                tile_template = f"./tiles/{{z}}/{{x}}/{{y}}.{self.format}"
             else:  # xyz and others
-                tile_template = "./tiles/{z}/{x}/{y}." + self.format
+                tile_template = f"./tiles/{{z}}/{{x}}/{{y}}.{self.format}"
             
             # Generate tiles.json
             tilejson_path = self.output_dir / "tiles.json"
@@ -323,7 +323,7 @@ class RGBWeaverPipeline:
     
     def _cleanup(self) -> None:
         """Clean up temporary files."""
-        logger.debug("🧹 Cleaning up temporary files...")
+        logger.debug("Cleaning up temporary files...")
         
         try:
             if self.temp_dir and self.temp_dir.exists():
