@@ -1,0 +1,60 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "rgb-weaver"
+version = "0.1.0"
+description = "Generate terrain RGB raster tiles directly from a DEM using gdal, rio-rgbify and mbutil"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Australes Inc", email = "diegoposba@gmail.com"}
+]
+keywords = ["tiles", "terrain", "rgb", "raster", "gdal", "gis", "dem", "elevation"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+dependencies = [
+    "click>=8.0",
+    "rasterio>=1.3.0",
+    "numpy>=1.20.0",
+    "tqdm>=4.60.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+    "black",
+    "flake8",
+    "pre-commit",
+]
+
+[project.scripts]
+rgb-weaver = "rgbweaver.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/Australes-Inc/rgb-weaver"
+Repository = "https://github.com/Australes-Inc/rgb-weaver"
+Issues = "https://github.com/Australes-Inc/rgb-weaver/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["rgbweaver*"]
+
+[tool.setuptools.package-data]
+rgbweaver = ["*.json", "*.yml", "*.yaml"]
