@@ -132,7 +132,7 @@ output/
 
 rgb-weaver supports various raster formats through GDAL:
 
-- **GeoTIFF** (`.tif`, `.tiff`) - *Recommended*
+- **GeoTIFF** (`.tif`, `.tiff`) - *Strongly recommended*
 - **ERDAS Imagine** (`.img`)
 - **ENVI formats** (`.bil`, `.bip`, `.bsq`)
 - **ASCII Grid** (`.asc`)
