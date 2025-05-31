@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any
 import shutil
 
-from tqdm import tqdm
+from tqdm import tqdm # type: ignore
 
 from rgbweaver.metadata import extract_dem_metadata, generate_tilejson, DEMInfo
 from rgbweaver.utils import (
