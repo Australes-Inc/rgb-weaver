@@ -123,7 +123,7 @@ class DEMMetadata:
                     dtype=dtype
                 )
                 
-                logger.info(f" Metadata extracted successfully")
+                logger.info("Metadata extracted successfully")
                 logger.debug(f"Bounds (WGS84): {bounds_wgs84}")
                 logger.debug(f"Center (WGS84): {center_wgs84}")
                 if compute_stats:
@@ -282,7 +282,7 @@ class TileJSONGenerator:
             "name": name,
             "version": DEFAULT_VERSION,
             "scheme": scheme,
-            "tiles": [tile_url_template.format(format=format)],
+            "tiles": [tile_url_template],  # Use template as-is, no formatting
             "minzoom": min_zoom,
             "maxzoom": max_zoom,
             "bounds": list(self.dem_info.bounds_wgs84),
@@ -306,7 +306,7 @@ class TileJSONGenerator:
             if key not in tilejson:  # Don't override standard fields
                 tilejson[key] = value
         
-        logger.info(" TileJSON generated successfully")
+        logger.info("TileJSON generated successfully")
         return tilejson
     
     def save(
