@@ -105,6 +105,12 @@ def setup_logging(verbose: bool = False, quiet: bool = False):
     help=f'Attribution to display [default: "{DEFAULT_ATTRIBUTION}"]'
 )
 @click.option(
+    '--base-url',
+    type=str,
+    default=None,
+    help='Base URL for tile server (e.g. http://localhost:3000/assets/)'
+)
+@click.option(
     '--verbose', '-v',
     is_flag=True,
     help='Verbose mode (show more details)'
@@ -134,6 +140,7 @@ def main(
     name: Optional[str],
     description: Optional[str],
     attribution: str,
+    base_url: Optional[str],
     verbose: bool,
     quiet: bool,
     force: bool
@@ -152,7 +159,7 @@ def main(
         # Basic usage
         rgb-weaver dem.tif output/ --min-z 8 --max-z 14
         
-        # Advanced usage with custom parameters
+        # Advanced usage with custom parameters and base URL
         rgb-weaver dem.tif terrain_tiles/ \\
             --min-z 6 --max-z 16 \\
             --workers 8 \\
@@ -160,7 +167,8 @@ def main(
             --base-val -1000 \\
             --interval 0.5 \\
             --name "Alps Terrain" \\
-            --attribution "© IGN France"
+            --attribution "© IGN France" \\
+            --base-url "http://localhost:3000/assets/"
     """
     # Configuration du logging
     setup_logging(verbose, quiet)
@@ -168,9 +176,9 @@ def main(
     
     try:
         # Input validation
-        logger.info(f"🚀 Starting rgb-weaver")
-        logger.info(f"📁 Input file: {input_dem}")
-        logger.info(f"📂 Output directory: {output_dir}")
+        logger.info(f"Starting rgb-weaver")
+        logger.info(f"Input file: {input_dem}")
+        logger.info(f"Output directory: {output_dir}")
         
         # Validate input file
         validate_input_file(input_dem)
@@ -200,23 +208,24 @@ def main(
             'name': name or input_dem.stem,
             'description': description,
             'attribution': attribution,
+            'base_url': base_url,
             'force': force
         }
         
         # Initialize and run pipeline
         pipeline = RGBWeaverPipeline(input_dem, output_dir, **pipeline_config)
         
-        logger.info(" Starting processing pipeline...")
+        logger.info("Starting processing pipeline...")
         pipeline.run()
         
-        logger.info(" Processing completed successfully!")
-        logger.info(f" Results available at: {output_dir}")
+        logger.info("Processing completed successfully!")
+        logger.info(f"Results available at: {output_dir}")
         
     except KeyboardInterrupt:
-        logger.error(" Processing interrupted by user")
+        logger.error("Processing interrupted by user")
         sys.exit(1)
     except Exception as e:
-        logger.error(f" Error during processing: {e}")
+        logger.error(f"Error during processing: {e}")
         if verbose:
             logger.exception("Error details:")
         sys.exit(1)

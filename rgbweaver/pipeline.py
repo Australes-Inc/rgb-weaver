@@ -57,6 +57,7 @@ class RGBWeaverPipeline:
         name: Optional[str] = None,
         description: Optional[str] = None,
         attribution: str = DEFAULT_ATTRIBUTION,
+        base_url: Optional[str] = None,
         force: bool = False,
         **kwargs
     ):
@@ -77,6 +78,7 @@ class RGBWeaverPipeline:
             name: Tileset name
             description: Tileset description
             attribution: Attribution string
+            base_url: Base URL for tile server
             force: Force overwrite existing files
             **kwargs: Additional parameters
         """
@@ -93,6 +95,7 @@ class RGBWeaverPipeline:
         self.name = name or self.input_dem.stem
         self.description = description
         self.attribution = attribution
+        self.base_url = base_url
         self.force = force
         self.kwargs = kwargs
         
@@ -293,10 +296,15 @@ class RGBWeaverPipeline:
             if self.dem_info is None:
                 raise PipelineError("DEM metadata not available")
             
-            # Determine tile URL template based on scheme
-            if self.scheme == "tms":
-                tile_template = f"./tiles/{{z}}/{{x}}/{{y}}.{self.format}"
-            else:  # xyz and others
+            # Build tile URL template
+            if self.base_url:
+                # Ensure base_url ends with /
+                base_url = self.base_url.rstrip('/') + '/'
+                # Add output directory name and tiles path
+                output_dir_name = self.output_dir.name
+                tile_template = f"{base_url}{output_dir_name}/tiles/{{z}}/{{x}}/{{y}}.{self.format}"
+            else:
+                # Use relative path as before
                 tile_template = f"./tiles/{{z}}/{{x}}/{{y}}.{self.format}"
             
             # Generate tiles.json
