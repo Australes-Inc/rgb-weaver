@@ -95,7 +95,7 @@ class DEMMetadata:
                 crs = src.crs
                 bounds = src.bounds
                 nodata = src.nodata
-                dtype = str(src.dtype)
+                dtype = str(src.dtypes[0])
                 
                 logger.debug(f"Raster info: {width}x{height}, {bands} bands, CRS: {crs}")
                 
