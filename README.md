@@ -37,6 +37,11 @@ conda activate rgb-weaver
 
 # Install rgb-weaver in development mode
 pip install -e .
+
+# or
+
+# Install rgb-weaver
+pip install git+https://github.com/Australes-Inc/rgb-weaver.git
 ```
 
 #### Manual Installation
