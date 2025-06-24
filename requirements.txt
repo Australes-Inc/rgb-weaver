@@ -1,0 +1,23 @@
+# requirements.txt - Optimized for Docker production builds
+# Core dependencies for rgb-weaver
+
+# CLI framework
+click>=8.0.0
+
+# Geospatial processing
+rasterio>=1.3.0,<1.5.0
+numpy>=1.24,<2.2  # Compatible with numba and other packages
+
+# Progress bars and utilities
+tqdm>=4.60.0
+
+# Additional rasterio dependencies for better Docker compatibility
+affine>=2.3.0
+attrs>=21.0.0
+certifi
+cligj>=0.5
+click-plugins
+pyparsing
+
+# Optional: For better performance in containers
+Pillow>=9.0.0
