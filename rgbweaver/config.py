@@ -1,4 +1,4 @@
-# rgbweaver/config.py (mise à jour)
+# rgbweaver/config.py 
 """
 Configuration constants and defaults for rgb-weaver v2.0.0
 """
@@ -66,15 +66,15 @@ class ValidationRules:
     """Validation rules and limits"""
     
     # Zoom level validation
-    ZOOM_RANGE_WARNING_THRESHOLD = 10  # Warn if range > 10 levels
-    MAX_SAFE_ZOOM_RANGE = 15          # Hard limit for safety
+    ZOOM_RANGE_WARNING_THRESHOLD = 10  
+    MAX_SAFE_ZOOM_RANGE = 22         
     
     # File size warnings (in MB)
     LARGE_OUTPUT_WARNING_SIZE = 500
     VERY_LARGE_OUTPUT_WARNING_SIZE = 2000
     
     # Memory and performance
-    MAX_WORKERS = 16
+    MAX_WORKERS = 240
     RECOMMENDED_WORKERS = 8
 
 

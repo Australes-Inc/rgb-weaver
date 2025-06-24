@@ -1,4 +1,4 @@
-# rgbweaver/core/processors/tiles.py (OPTIMISÉ)
+# rgbweaver/core/processors/tiles.py
 """
 PNG tiles processor - generates PNG tiles directory from DEM via MBTiles
 """

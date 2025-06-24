@@ -1,4 +1,4 @@
-# setup.py (mise à jour)
+# setup.py
 """
 Setup configuration for rgb-weaver v2.0.0 with modular architecture
 """
@@ -6,7 +6,6 @@ Setup configuration for rgb-weaver v2.0.0 with modular architecture
 from setuptools import setup, find_packages
 from pathlib import Path
 
-# Read version from __init__.py
 def get_version():
     """Extract version from package"""
     init_file = Path(__file__).parent / "rgbweaver" / "__init__.py"
@@ -17,7 +16,6 @@ def get_version():
                     return line.split('=')[1].strip().strip('"').strip("'")
     return "2.0.0"
 
-# Read README
 def get_long_description():
     """Read README file"""
     readme_file = Path(__file__).parent / "README.md"

@@ -1,6 +1,6 @@
-# rgbweaver/core/pipeline.py (AMÉLIORÉ PHASE 2)
+# rgbweaver/core/pipeline.py 
 """
-Enhanced main pipeline orchestrator with Phase 2 improvements
+Enhanced main pipeline for rgb-weaver processing
 """
 
 import tempfile

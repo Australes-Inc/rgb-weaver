@@ -1,3 +1,4 @@
+# rgbweaver/utils.py
 """
 Enhanced utility functions for rgb-weaver with PMTiles binary support
 """
@@ -78,7 +79,7 @@ def check_dependencies(required_only: bool = False) -> Dict[str, bool]:
     Raises:
         RuntimeError: If required dependencies are missing
     """
-    # Core dependencies always required
+    # Core dependencies 
     core_deps = {
         'rio': {
             'command': 'rio',
@@ -163,7 +164,7 @@ def check_bundled_pmtiles() -> Dict[str, any]:
     try:
         from rgbweaver.core.processors.pmtiles import PMTilesProcessor
         
-        # Try to initialize processor (this will check for binary)
+        # Initialize processor
         processor = PMTilesProcessor()
         
         return {
@@ -203,7 +204,7 @@ def validate_zoom_levels(min_z: int, max_z: int):
 def ensure_output_dir(output_path: Path, force: bool = False):
     """Ensure output directory/file path is valid with enhanced checks"""
     if output_path.suffix.lower() in ['.mbtiles', '.pmtiles']:
-        # File output - check parent directory and file existence
+        # File output
         parent = output_path.parent
         parent.mkdir(parents=True, exist_ok=True)
         
@@ -247,9 +248,8 @@ def format_file_size(size_bytes: int) -> str:
 
 def estimate_processing_time(zoom_range: int, workers: int = 4) -> str:
     """Rough estimate of processing time based on zoom range"""
-    # Very rough estimates based on typical performance
-    base_time_minutes = zoom_range * 2  # 2 minutes per zoom level base
-    parallel_factor = min(workers / 4, 1.0)  # 4 workers is baseline
+    base_time_minutes = zoom_range * 2  
+    parallel_factor = min(workers / 4, 1.0)  
     
     estimated_minutes = base_time_minutes / parallel_factor
     

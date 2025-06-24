@@ -1,3 +1,4 @@
+# rgbweaver/metadata.py
 """
 DEM metadata extraction and TileJSON generation for rgb-weaver
 """
@@ -12,7 +13,6 @@ import rasterio
 from rasterio.warp import transform_bounds
 from rasterio.crs import CRS
 
-# Imports corrigés pour utiliser les nouvelles classes de config
 from rgbweaver.config import DefaultValues
 from rgbweaver.utils import RGBWeaverError
 
@@ -278,9 +278,9 @@ class TileJSONGenerator:
         tilejson = {
             "tilejson": DefaultValues.TILEJSON_VERSION,
             "name": name,
-            "version": "1.0.0",  # Version par défaut pour le tileset
+            "version": "1.0.0", 
             "scheme": scheme,
-            "tiles": [tile_url_template],  # Use template as-is, no formatting
+            "tiles": [tile_url_template],  
             "minzoom": min_zoom,
             "maxzoom": max_zoom,
             "bounds": list(self.dem_info.bounds_wgs84),
@@ -295,13 +295,12 @@ class TileJSONGenerator:
         else:
             tilejson["description"] = f"Terrain RGB tiles generated from DEM"
         
-        # Add Mapbox extensions for terrain RGB
-        tilejson["encoding"] = "mapbox"  # Encoding par défaut pour terrain RGB
+        tilejson["encoding"] = "mapbox"  
         tilejson["tileSize"] = DefaultValues.TILE_SIZE
         
         # Add custom fields
         for key, value in kwargs.items():
-            if key not in tilejson:  # Don't override standard fields
+            if key not in tilejson:  
                 tilejson[key] = value
         
         logger.info("TileJSON generated successfully")
@@ -342,10 +341,8 @@ class TileJSONGenerator:
                 **kwargs
             )
             
-            # Ensure output directory exists
             output_path.parent.mkdir(parents=True, exist_ok=True)
             
-            # Save to file
             with open(output_path, 'w', encoding='utf-8') as f:
                 json.dump(tilejson_data, f, indent=2, ensure_ascii=False)
             

@@ -1,4 +1,4 @@
-# rgbweaver/core/processors/pmtiles.py (VERSION AMÉLIORÉE avec binaire bundlé)
+# rgbweaver/core/processors/pmtiles.py
 """
 PMTiles processor - generates PMTiles from DEM via MBTiles conversion
 Uses bundled pmtiles binary for cross-platform compatibility
@@ -44,7 +44,6 @@ class PMTilesProcessor(ProcessorBase):
             ('linux', 'x86_64'): 'pmtiles-linux-x64',
             ('darwin', 'amd64'): 'pmtiles-darwin-x64',
             ('darwin', 'x86_64'): 'pmtiles-darwin-x64',
-            # Note: darwin_arm64 not available in go-pmtiles releases
         }
         
         # Normalize machine architecture

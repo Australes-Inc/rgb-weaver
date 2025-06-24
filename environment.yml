@@ -15,8 +15,8 @@ dependencies:
   - tqdm>=4.60.0
   
   # Additional utilities
-  - mercantile  # Pour les calculs de tiles
-  - pillow>=8.0  # Pour le traitement d'images
+  - mercantile  
+  - pillow>=8.0  
   
   - pytest>=6.0
   - pytest-cov
@@ -29,16 +29,3 @@ dependencies:
   - pip:
     - git+https://github.com/Australes-Inc/mbutil.git
     - git+https://github.com/Australes-Inc/rio-rgbify.git
-
-# Instructions d'installation
-# 1. Créer l'environnement:
-#    conda env create -f environment.yml
-#
-# 2. Activer l'environnement:
-#    conda activate rgb-weaver
-#
-# 3. Installer rgb-weaver en mode développement:
-#    pip install -e .
-#
-# 4. Vérifier l'installation:
-#    rgb-weaver --help

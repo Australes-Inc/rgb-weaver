@@ -1,4 +1,4 @@
-# rgbweaver/core/processors/mbtiles.py (RAFFINÉ)
+# rgbweaver/core/processors/mbtiles.py
 """
 MBTiles processor - generates MBTiles directly from DEM using rio-rgbify
 """

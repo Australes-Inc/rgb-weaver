@@ -1,3 +1,4 @@
+# rgbweaver/core/outputs/__init__.py
 """
 Output type definitions and factory
 """
@@ -34,8 +35,8 @@ class OutputType(Enum):
         extensions = {
             self.MBTILES: ".mbtiles",
             self.PMTILES: ".pmtiles",
-            self.TILES: None,  # Directory
-            self.TILES_WITH_JSON: None  # Directory
+            self.TILES: None,  
+            self.TILES_WITH_JSON: None  
         }
         return extensions[self]
 

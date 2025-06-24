@@ -1,3 +1,4 @@
+# rgbweaver/core/processors/factory.py
 """
 Processor factory for creating appropriate processors
 """

@@ -1,4 +1,4 @@
-# rgbweaver/__init__.py (VERSION FINALE)
+# rgbweaver/__init__.py 
 """
 rgb-weaver: Enhanced terrain RGB raster tile generator
 

@@ -1,4 +1,4 @@
-# rgbweaver/cli.py (VERSION FINALE avec gestion d'erreurs robuste)
+# rgbweaver/cli.py
 """
 Final CLI for rgb-weaver Phase 2 with comprehensive error handling
 """

@@ -1,4 +1,4 @@
-# rgbweaver/core/__init__.py (mise à jour)
+# rgbweaver/core/__init__.py 
 """
 Enhanced core components for rgb-weaver Phase 2
 """

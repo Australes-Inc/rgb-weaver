@@ -1,4 +1,4 @@
-# MANIFEST.in (pour inclure les binaires)
+# MANIFEST.in
 """
 # Include binary files
 recursive-include rgbweaver/bin pmtiles-*
