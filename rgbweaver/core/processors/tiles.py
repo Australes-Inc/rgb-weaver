@@ -47,7 +47,7 @@ class TilesProcessor(ProcessorBase):
         
         try:
             if verbose:
-                print("🔄 Step 1/3: Generating temporary MBTiles...")
+                print("Step 1/3: Generating temporary MBTiles...")
             
             # Step 1: Generate temporary MBTiles
             temp_mbtiles = temp_manager.get_temp_path('.mbtiles')
@@ -66,7 +66,7 @@ class TilesProcessor(ProcessorBase):
                 )
             
             if verbose:
-                print("🔄 Step 2/3: Extracting tiles from MBTiles...")
+                print("Step 2/3: Extracting tiles from MBTiles...")
             
             # Step 2: Extract tiles from MBTiles using mb-util
             output_path.mkdir(parents=True, exist_ok=True)
@@ -88,7 +88,7 @@ class TilesProcessor(ProcessorBase):
             result = run_command(cmd, verbose=verbose)
             
             if verbose:
-                print("✅ Tiles extraction completed")
+                print("Tiles extraction completed")
             
             # Verify tiles directory was created
             if not tiles_dir.exists():
@@ -105,7 +105,7 @@ class TilesProcessor(ProcessorBase):
             
             if tilejson:
                 if verbose:
-                    print("🔄 Step 3/3: Generating TileJSON metadata...")
+                    print("Step 3/3: Generating TileJSON metadata...")
                 
                 dem_metadata = kwargs.get('dem_metadata')
                 if dem_metadata:
@@ -133,11 +133,11 @@ class TilesProcessor(ProcessorBase):
                         json.dump(tilejson_data, f, indent=2, ensure_ascii=False)
                     
                     if verbose:
-                        print("✅ TileJSON metadata generated")
+                        print("TileJSON metadata generated")
             
             # Calculate statistics
             if verbose:
-                print("📊 Calculating tile statistics...")
+                print("Calculating tile statistics...")
             
             tile_files = list(tiles_dir.rglob(f'*.{format_type}'))
             total_tiles = len(tile_files)
@@ -172,7 +172,7 @@ class TilesProcessor(ProcessorBase):
             })
             
             if verbose:
-                print(f"📊 Generated {total_tiles} tiles ({metadata['total_size_mb']} MB)")
+                print(f"Generated {total_tiles} tiles ({metadata['total_size_mb']} MB)")
             
             return ProcessResult(
                 success=True,

@@ -98,15 +98,15 @@ class ErrorMessages:
 class LogMessages:
     """Standard log messages"""
     
-    STARTING_PIPELINE = "🚀 Starting rgb-weaver pipeline"
-    DETECTING_OUTPUT_TYPE = "🔍 Detected output type: {output_type}"
-    EXTRACTING_METADATA = "📊 Extracting DEM metadata..."
-    PROCESSING_WITH = "⚙️  Processing with {processor_name}..."
-    CONVERTING_FORMAT = "🔄 Converting {source} to {target}..."
-    GENERATING_TILES = "🗂️  Generating tiles from MBTiles..."
-    GENERATING_TILEJSON = "📝 Generating TileJSON metadata..."
-    SUCCESS = "✅ Successfully generated {output_type}: {output_path}"
-    CLEANUP_TEMP = "🧹 Cleaning up temporary files..."
+    STARTING_PIPELINE = "Starting rgb-weaver pipeline"
+    DETECTING_OUTPUT_TYPE = "Detected output type: {output_type}"
+    EXTRACTING_METADATA = "Extracting DEM metadata..."
+    PROCESSING_WITH = "Processing with {processor_name}..."
+    CONVERTING_FORMAT = "Converting {source} to {target}..."
+    GENERATING_TILES = "Generating tiles from MBTiles..."
+    GENERATING_TILEJSON = "Generating TileJSON metadata..."
+    SUCCESS = "Successfully generated {output_type}: {output_path}"
+    CLEANUP_TEMP = "Cleaning up temporary files..."
 
 
 # Configuration for external tools

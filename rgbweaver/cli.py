@@ -16,9 +16,9 @@ def show_platform_support():
     """Show supported output formats on current platform"""
     supported_types = OutputFactory.get_supported_types()
     
-    click.echo("🖥️  Platform Support:")
+    click.echo("Platform Support:")
     for output_type in [OutputType.MBTILES, OutputType.PMTILES, OutputType.TILES_WITH_JSON, OutputType.TILES]:
-        status = "✅" if output_type in supported_types else "❌"
+        status = "Ok" if output_type in supported_types else "Error"
         click.echo(f"  {status} {output_type.value}: {output_type.description}")
 
 
@@ -72,7 +72,7 @@ def main(input_dem: Path,
          check_deps: bool,
          version: bool):
     """
-    🌍 Generate terrain RGB raster tiles from DEMs with multiple output formats
+    Generate terrain RGB raster tiles from DEMs with multiple output formats
     
     INPUT_DEM: Path to input DEM file (GeoTIFF, SRTM, etc.)
     OUTPUT: Output path (.mbtiles, .pmtiles, or directory for tiles)
@@ -80,19 +80,19 @@ def main(input_dem: Path,
     Examples:
     
     \b
-    🚀 PMTiles for modern web mapping:
+    PMTiles for modern web mapping:
     rgb-weaver dem.tif terrain.pmtiles --min-z 8 --max-z 14
     
     \b
-    💾 MBTiles for offline applications:
+    MBTiles for offline applications:
     rgb-weaver dem.tif terrain.mbtiles --min-z 8 --max-z 14
     
     \b
-    🗂️  PNG tiles with TileJSON for custom servers:
+    PNG tiles with TileJSON for custom servers:
     rgb-weaver dem.tif tiles/ --min-z 8 --max-z 14 --base-url "https://tiles.example.com/"
     
     \b
-    ⚡ High-performance WebP tiles:
+    High-performance WebP tiles:
     rgb-weaver dem.tif tiles/ --min-z 10 --max-z 16 --format webp --workers 8
     """
     
@@ -106,34 +106,34 @@ def main(input_dem: Path,
     # Handle dependency/platform check
     if check_deps:
         try:
-            click.echo("🔍 Checking dependencies and platform support...\n")
+            click.echo("Checking dependencies and platform support...\n")
             deps = check_dependencies(required_only=False)
-            click.echo("✅ Dependency check completed:")
+            click.echo("Dependency check completed:")
             for dep, available in deps.items():
-                status = "✅ Available" if available else "❌ Missing"
+                status = "Available" if available else "Missing"
                 click.echo(f"  {dep}: {status}")
             
             click.echo()
             show_platform_support()
             sys.exit(0)
         except Exception as e:
-            click.echo(f"❌ Dependency check failed: {e}", err=True)
+            click.echo(f"Dependency check failed: {e}", err=True)
             sys.exit(1)
     
     # Validate required arguments
     if not input_dem or not output:
-        click.echo("❌ Error: INPUT_DEM and OUTPUT are required arguments", err=True)
+        click.echo("Error: INPUT_DEM and OUTPUT are required arguments", err=True)
         click.echo("Use --help for usage information")
         sys.exit(1)
     
     if min_z is None or max_z is None:
-        click.echo("❌ Error: --min-z and --max-z are required", err=True)
+        click.echo("Error: --min-z and --max-z are required", err=True)
         click.echo("Example: rgb-weaver dem.tif output.pmtiles --min-z 8 --max-z 14")
         sys.exit(1)
     
     # Handle conflicting verbosity options
     if verbose and quiet:
-        click.echo("❌ Error: --verbose and --quiet cannot be used together", err=True)
+        click.echo("Error: --verbose and --quiet cannot be used together", err=True)
         sys.exit(1)
     
     try:
@@ -143,19 +143,19 @@ def main(input_dem: Path,
             supported_types = OutputFactory.get_supported_types()
             
             if output_type not in supported_types:
-                click.echo(f"❌ Error: {output_type.value} format not supported on this platform", err=True)
-                click.echo("\n🖥️  Supported formats on this platform:")
+                click.echo(f"Error: {output_type.value} format not supported on this platform", err=True)
+                click.echo("\nSupported formats on this platform:")
                 for supported_type in supported_types:
-                    click.echo(f"  ✅ {supported_type.value}: {supported_type.description}")
+                    click.echo(f"  {supported_type.value}: {supported_type.description}")
                 sys.exit(1)
                 
         except ValueError as e:
-            click.echo(f"❌ Error: {e}", err=True)
+            click.echo(f"Error: {e}", err=True)
             sys.exit(1)
         
         # Check core dependencies
         if not quiet:
-            click.echo("🔍 Checking dependencies...")
+            click.echo("Checking dependencies...")
         check_dependencies(required_only=True)
         
         # Validate inputs
@@ -170,10 +170,10 @@ def main(input_dem: Path,
         
         # Show processing info
         if not quiet:
-            click.echo(f"\n🚀 Starting rgb-weaver pipeline")
-            click.echo(f"📥 Input: {input_dem}")
-            click.echo(f"📤 Output: {output} ({output_type.value})")
-            click.echo(f"🔢 Zoom range: {min_z}-{max_z} ({max_z - min_z + 1} levels)")
+            click.echo(f"\nStarting rgb-weaver pipeline")
+            click.echo(f"Input: {input_dem}")
+            click.echo(f"Output: {output} ({output_type.value})")
+            click.echo(f"Zoom range: {min_z}-{max_z} ({max_z - min_z + 1} levels)")
         
         # Create pipeline
         pipeline = Pipeline(verbose=verbose, quiet=quiet)
@@ -203,46 +203,46 @@ def main(input_dem: Path,
         )
         
         if not quiet:
-            click.echo(f"\n🎉 Success! Generated {result['output_type']}: {result['output_path']}")
+            click.echo(f"\nSuccess! Generated {result['output_type']}: {result['output_path']}")
             
             # Show enhanced summary
             metadata = result.get('metadata', {})
             if metadata.get('total_tiles'):
-                click.echo(f"📊 Total tiles: {metadata['total_tiles']:,}")
+                click.echo(f"Total tiles: {metadata['total_tiles']:,}")
             
             # Show file size information
             if metadata.get('file_size_bytes'):
                 size_str = format_file_size(metadata['file_size_bytes'])
-                click.echo(f"💾 File size: {size_str}")
+                click.echo(f"File size: {size_str}")
             elif metadata.get('total_size_bytes'):
                 size_str = format_file_size(metadata['total_size_bytes'])
-                click.echo(f"💾 Total size: {size_str}")
+                click.echo(f"Total size: {size_str}")
             
             # Show compression info for PMTiles
             if metadata.get('compression_ratio_percent'):
                 ratio = metadata['compression_ratio_percent']
-                click.echo(f"📉 PMTiles compression: {ratio}% size reduction")
+                click.echo(f"PMTiles compression: {ratio}% size reduction")
             
             # Show processing time
             if result.get('total_time_seconds'):
                 time_str = f"{result['total_time_seconds']:.1f}s"
-                click.echo(f"⏱️  Total time: {time_str}")
+                click.echo(f"Total time: {time_str}")
         
         sys.exit(0)
         
     except KeyboardInterrupt:
         if not quiet:
-            click.echo("\n🛑 Operation cancelled by user", err=True)
+            click.echo("\nOperation cancelled by user", err=True)
         sys.exit(130)
         
     except Exception as e:
         if verbose:
-            click.echo(f"\n❌ Error occurred:", err=True)
+            click.echo(f"\nError occurred:", err=True)
             traceback.print_exc()
         else:
-            click.echo(f"❌ Error: {e}", err=True)
+            click.echo(f"Error: {e}", err=True)
             if not quiet:
-                click.echo("💡 Use --verbose for detailed error information")
+                click.echo("Use --verbose for detailed error information")
         sys.exit(1)
 
 

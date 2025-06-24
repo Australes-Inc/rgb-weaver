@@ -31,7 +31,7 @@ class MBTilesProcessor(ProcessorBase):
         
         try:
             if verbose:
-                print("🔄 Generating MBTiles using rio-rgbify...")
+                print("Generating MBTiles using rio-rgbify...")
             
             # Extract processing parameters with defaults
             min_z = kwargs.get('min_z', 8)
@@ -74,7 +74,7 @@ class MBTilesProcessor(ProcessorBase):
             result = run_command(cmd, verbose=verbose)
             
             if verbose:
-                print("✅ MBTiles generation completed")
+                print("MBTiles generation completed")
             
             # Verify output file was created
             if not output_path.exists():

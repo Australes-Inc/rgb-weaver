@@ -34,7 +34,7 @@ def run_command(cmd: List[str],
         CompletedProcess result
     """
     if verbose:
-        print(f"🔧 Running: {' '.join(cmd)}")
+        print(f" Running: {' '.join(cmd)}")
     
     try:
         result = subprocess.run(
@@ -46,16 +46,16 @@ def run_command(cmd: List[str],
         )
         
         if verbose and result.stdout:
-            print(f"📤 Output: {result.stdout.strip()}")
+            print(f" Output: {result.stdout.strip()}")
         
         return result
         
     except subprocess.CalledProcessError as e:
         error_msg = f"Command failed: {' '.join(cmd)}"
         if e.stderr:
-            error_msg += f"\n❌ Error: {e.stderr.strip()}"
+            error_msg += f"\n Error: {e.stderr.strip()}"
         if e.stdout and verbose:
-            error_msg += f"\n📤 Output: {e.stdout.strip()}"
+            error_msg += f"\n Output: {e.stdout.strip()}"
         raise RuntimeError(error_msg) from e
         
     except FileNotFoundError as e:
@@ -118,7 +118,7 @@ def check_dependencies(required_only: bool = False) -> Dict[str, bool]:
             # Special handling for bundled PMTiles
             results[name] = config['available']
             if not config['available']:
-                missing_optional.append(f"  ⚠️  {name}: {config['description']}")
+                missing_optional.append(f"  {name}: {config['description']}")
         else:
             try:
                 result = subprocess.run(
@@ -133,21 +133,21 @@ def check_dependencies(required_only: bool = False) -> Dict[str, bool]:
                 results[name] = False
                 
                 if name in core_deps:
-                    missing_core.append(f"  ❌ {name}: {config['description']}")
+                    missing_core.append(f"  {name}: {config['description']}")
                     missing_core.append(f"      Install: {config['install_cmd']}")
                 else:
-                    missing_optional.append(f"  ⚠️  {name}: {config['description']}")
+                    missing_optional.append(f"  {name}: {config['description']}")
                     missing_optional.append(f"      Install: {config['install_cmd']}")
     
     # Report missing dependencies
     if missing_core:
-        error_msg = "❌ Missing required dependencies:\n" + "\n".join(missing_core)
+        error_msg = " Missing required dependencies:\n" + "\n".join(missing_core)
         if missing_optional:
-            error_msg += "\n\n⚠️  Missing optional dependencies:\n" + "\n".join(missing_optional)
+            error_msg += "\n\nMissing optional dependencies:\n" + "\n".join(missing_optional)
         raise RuntimeError(error_msg)
     
     if missing_optional:
-        print("⚠️  Optional dependencies status:")
+        print("Optional dependencies status:")
         print("\n".join(missing_optional))
     
     return results
@@ -194,10 +194,10 @@ def validate_zoom_levels(min_z: int, max_z: int):
     # Warnings for large ranges
     zoom_range = max_z - min_z + 1
     if zoom_range > 10:
-        print(f"⚠️  Warning: Large zoom range ({zoom_range} levels) will generate many tiles and may take significant time")
+        print(f"Warning: Large zoom range ({zoom_range} levels) will generate many tiles and may take significant time")
     
     if zoom_range > 15:
-        print(f"💡 Consider reducing the zoom range or using more workers for better performance")
+        print(f"Consider reducing the zoom range or using more workers for better performance")
 
 
 def ensure_output_dir(output_path: Path, force: bool = False):
@@ -215,7 +215,7 @@ def ensure_output_dir(output_path: Path, force: bool = False):
                 )
             else:
                 output_path.unlink()
-                print(f"🗑️  Removed existing file: {output_path}")
+                print(f"Removed existing file: {output_path}")
     else:
         # Directory output
         if output_path.exists():
@@ -231,7 +231,7 @@ def ensure_output_dir(output_path: Path, force: bool = False):
                     )
             else:
                 shutil.rmtree(output_path)
-                print(f"🗑️  Removed existing directory: {output_path}")
+                print(f"Removed existing directory: {output_path}")
         
         output_path.mkdir(parents=True, exist_ok=True)
 

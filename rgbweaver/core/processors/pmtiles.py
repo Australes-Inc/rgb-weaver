@@ -115,8 +115,8 @@ class PMTilesProcessor(ProcessorBase):
         
         try:
             if verbose:
-                print(f"🔧 Using PMTiles binary: {self.pmtiles_binary}")
-                print("🔄 Step 1/2: Generating temporary MBTiles...")
+                print(f"Using PMTiles binary: {self.pmtiles_binary}")
+                print("Step 1/2: Generating temporary MBTiles...")
             
             # Step 1: Generate temporary MBTiles
             temp_mbtiles = temp_manager.get_temp_path('.mbtiles')
@@ -136,8 +136,8 @@ class PMTilesProcessor(ProcessorBase):
             
             if verbose:
                 mbtiles_size = temp_mbtiles.stat().st_size / (1024 * 1024)
-                print(f"✅ MBTiles generated: {mbtiles_size:.1f} MB")
-                print("🔄 Step 2/2: Converting MBTiles to PMTiles...")
+                print(f"MBTiles generated: {mbtiles_size:.1f} MB")
+                print("Step 2/2: Converting MBTiles to PMTiles...")
             
             # Step 2: Convert MBTiles to PMTiles using bundled binary
             output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -163,7 +163,7 @@ class PMTilesProcessor(ProcessorBase):
             result = run_command(cmd, verbose=verbose)
             
             if verbose:
-                print("✅ PMTiles conversion completed")
+                print("PMTiles conversion completed")
             
             # Verify output file was created
             if not output_path.exists():
@@ -198,9 +198,9 @@ class PMTilesProcessor(ProcessorBase):
             })
             
             if verbose:
-                print(f"📊 Final size: {metadata['file_size_mb']} MB")
+                print(f"Final size: {metadata['file_size_mb']} MB")
                 if compression_ratio > 0:
-                    print(f"📉 Compression: {compression_ratio:.1f}% reduction")
+                    print(f"Compression: {compression_ratio:.1f}% reduction")
             
             return ProcessResult(
                 success=True,
