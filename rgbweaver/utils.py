@@ -1,214 +1,260 @@
+# rgbweaver/utils.py
 """
-Utility functions for rgb-weaver
+Enhanced utility functions for rgb-weaver with PMTiles binary support
 """
 
-import os
-import logging
+import subprocess
+import sys
+import shutil
+import platform
 from pathlib import Path
-from typing import Union
-
-import rasterio
-from rasterio.errors import RasterioIOError
-
-from rgbweaver.config import (
-    SUPPORTED_RASTER_FORMATS, MAX_FILE_SIZE_MB,
-    MIN_ZOOM_LEVEL, MAX_ZOOM_LEVEL
-)
-
-logger = logging.getLogger(__name__)
+from typing import Optional, List, Dict
 
 
 class RGBWeaverError(Exception):
-    """Base exception for rgb-weaver."""
+    """Base exception for rgb-weaver errors."""
     pass
 
 
-class ValidationError(RGBWeaverError):
-    """Input parameter validation error."""
-    pass
-
-
-def validate_input_file(filepath: Path) -> None:
+def run_command(cmd: List[str], 
+                cwd: Optional[str] = None,
+                capture_output: bool = True,
+                check: bool = True,
+                verbose: bool = False) -> subprocess.CompletedProcess:
     """
-    Validate that the input file is usable.
+    Run a command with proper error handling and verbose output
     
     Args:
-        filepath: Path to file to validate
-        
-    Raises:
-        ValidationError: If file is not valid
-    """
-    logger.debug(f"Validating input file: {filepath}")
-    
-    # Check existence
-    if not filepath.exists():
-        raise ValidationError(f"File '{filepath}' does not exist")
-    
-    # Check that it's a file
-    if not filepath.is_file():
-        raise ValidationError(f"'{filepath}' is not a file")
-    
-    # Check extension
-    suffix = filepath.suffix.lower()
-    if suffix not in SUPPORTED_RASTER_FORMATS:
-        supported_str = ', '.join(SUPPORTED_RASTER_FORMATS)
-        raise ValidationError(
-            f"Format '{suffix}' not supported. "
-            f"Supported formats: {supported_str}"
-        )
-    
-    # Check file size
-    file_size_mb = filepath.stat().st_size / (1024 * 1024)
-    if file_size_mb > MAX_FILE_SIZE_MB:
-        raise ValidationError(
-            f"File too large ({file_size_mb:.1f} MB). "
-            f"Limit: {MAX_FILE_SIZE_MB} MB"
-        )
-    
-    # Check that file can be opened with rasterio
-    try:
-        with rasterio.open(filepath) as src:
-            # Basic checks
-            if src.count == 0:
-                raise ValidationError("File contains no bands")
-            
-            if src.width == 0 or src.height == 0:
-                raise ValidationError("File has invalid dimensions")
-            
-            # Check CRS
-            if src.crs is None:
-                logger.warning("  File has no coordinate reference system defined")
-            
-            logger.debug(
-                f"Valid file: {src.width}x{src.height}, "
-                f"{src.count} band(s), CRS: {src.crs}"
-            )
-            
-    except RasterioIOError as e:
-        raise ValidationError(f"Cannot read raster file: {e}")
-    except Exception as e:
-        raise ValidationError(f"Error opening file: {e}")
-
-
-def validate_zoom_levels(min_z: int, max_z: int) -> None:
-    """
-    Validate zoom levels.
-    
-    Args:
-        min_z: Minimum zoom level
-        max_z: Maximum zoom level
-        
-    Raises:
-        ValidationError: If zoom levels are invalid
-    """
-    logger.debug(f"Validating zoom levels: {min_z} - {max_z}")
-    
-    # Check absolute limits
-    if min_z < MIN_ZOOM_LEVEL:
-        raise ValidationError(
-            f"Minimum zoom ({min_z}) below limit ({MIN_ZOOM_LEVEL})"
-        )
-    
-    if max_z > MAX_ZOOM_LEVEL:
-        raise ValidationError(
-            f"Maximum zoom ({max_z}) above limit ({MAX_ZOOM_LEVEL})"
-        )
-    
-    # Check consistency
-    if min_z > max_z:
-        raise ValidationError(
-            f"Minimum zoom ({min_z}) greater than maximum zoom ({max_z})"
-        )
-    
-    # Warning if too many levels
-    zoom_range = max_z - min_z + 1
-    if zoom_range > 10:
-        logger.warning(
-            f"  Large zoom range ({zoom_range} levels). "
-            "Processing may take very long."
-        )
-
-
-def ensure_directory(path: Union[str, Path], force: bool = False) -> Path:
-    """
-    Ensure a directory exists, create if necessary.
-    
-    Args:
-        path: Directory path
-        force: If True, clear existing content
+        cmd: Command and arguments as list
+        cwd: Working directory
+        capture_output: Whether to capture stdout/stderr
+        check: Whether to raise exception on non-zero exit
+        verbose: Whether to print command and output
         
     Returns:
-        Path: Created directory path
-        
-    Raises:
-        ValidationError: If directory cannot be created
+        CompletedProcess result
     """
-    path = Path(path)
+    if verbose:
+        print(f" Running: {' '.join(cmd)}")
     
-    if path.exists():
-        if not path.is_dir():
-            raise ValidationError(f"'{path}' exists but is not a directory")
+    try:
+        result = subprocess.run(
+            cmd,
+            cwd=cwd,
+            capture_output=capture_output,
+            text=True,
+            check=check
+        )
         
-        if force:
-            logger.debug(f"Cleaning existing directory: {path}")
-            import shutil
-            shutil.rmtree(path)
-            path.mkdir(parents=True)
-    else:
-        logger.debug(f"Creating directory: {path}")
-        path.mkdir(parents=True, exist_ok=True)
-    
-    return path
+        if verbose and result.stdout:
+            print(f" Output: {result.stdout.strip()}")
+        
+        return result
+        
+    except subprocess.CalledProcessError as e:
+        error_msg = f"Command failed: {' '.join(cmd)}"
+        if e.stderr:
+            error_msg += f"\n Error: {e.stderr.strip()}"
+        if e.stdout and verbose:
+            error_msg += f"\n Output: {e.stdout.strip()}"
+        raise RuntimeError(error_msg) from e
+        
+    except FileNotFoundError as e:
+        raise RuntimeError(
+            f"Command not found: '{cmd[0]}'. "
+            f"Please ensure it's installed and in PATH."
+        ) from e
 
 
-def cleanup_on_error(path: Path) -> None:
+def check_dependencies(required_only: bool = False) -> Dict[str, bool]:
     """
-    Clean up temporary files on error.
+    Enhanced dependency check with bundled PMTiles support
     
     Args:
-        path: Directory to clean
+        required_only: If True, only check core dependencies
+        
+    Returns:
+        Dict mapping dependency names to availability status
+        
+    Raises:
+        RuntimeError: If required dependencies are missing
     """
-    if path.exists() and path.is_dir():
-        logger.debug(f"Cleaning temporary files: {path}")
-        import shutil
-        try:
-            shutil.rmtree(path)
-        except Exception as e:
-            logger.warning(f"Cannot clean {path}: {e}")
+    # Core dependencies 
+    core_deps = {
+        'rio': {
+            'command': 'rio',
+            'check_args': ['--help'],
+            'install_cmd': 'pip install rasterio[s3]',
+            'description': 'Rasterio CLI (for rio-rgbify)'
+        }
+    }
+    
+    # Optional dependencies for specific formats
+    optional_deps = {
+        'mb-util': {
+            'command': 'mb-util',
+            'check_args': ['--help'],
+            'install_cmd': 'pip install git+https://github.com/Australes-Inc/mbutil.git',
+            'description': 'MBUtil (for PNG tiles extraction)'
+        }
+    }
+    
+    # Special handling for PMTiles (bundled binary)
+    pmtiles_status = check_bundled_pmtiles()
+    optional_deps['pmtiles'] = {
+        'available': pmtiles_status['available'],
+        'description': f'PMTiles (bundled binary) - {pmtiles_status["message"]}'
+    }
+    
+    dependencies = core_deps.copy()
+    if not required_only:
+        dependencies.update(optional_deps)
+    
+    results = {}
+    missing_core = []
+    missing_optional = []
+    
+    for name, config in dependencies.items():
+        if name == 'pmtiles':
+            # Special handling for bundled PMTiles
+            results[name] = config['available']
+            if not config['available']:
+                missing_optional.append(f"  {name}: {config['description']}")
+        else:
+            try:
+                result = subprocess.run(
+                    [config['command']] + config['check_args'],
+                    capture_output=True,
+                    check=True,
+                    timeout=10
+                )
+                results[name] = True
+                
+            except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+                results[name] = False
+                
+                if name in core_deps:
+                    missing_core.append(f"  {name}: {config['description']}")
+                    missing_core.append(f"      Install: {config['install_cmd']}")
+                else:
+                    missing_optional.append(f"  {name}: {config['description']}")
+                    missing_optional.append(f"      Install: {config['install_cmd']}")
+    
+    # Report missing dependencies
+    if missing_core:
+        error_msg = " Missing required dependencies:\n" + "\n".join(missing_core)
+        if missing_optional:
+            error_msg += "\n\nMissing optional dependencies:\n" + "\n".join(missing_optional)
+        raise RuntimeError(error_msg)
+    
+    if missing_optional:
+        print("Optional dependencies status:")
+        print("\n".join(missing_optional))
+    
+    return results
+
+
+def check_bundled_pmtiles() -> Dict[str, any]:
+    """
+    Check if bundled PMTiles binary is available for current platform
+    
+    Returns:
+        Dict with availability status and message
+    """
+    try:
+        from rgbweaver.core.processors.pmtiles import PMTilesProcessor
+        
+        # Initialize processor
+        processor = PMTilesProcessor()
+        
+        return {
+            'available': True,
+            'message': f'Available at {processor.pmtiles_binary}',
+            'binary_path': str(processor.pmtiles_binary)
+        }
+        
+    except Exception as e:
+        return {
+            'available': False,
+            'message': str(e),
+            'binary_path': None
+        }
+
+
+def validate_zoom_levels(min_z: int, max_z: int):
+    """Validate zoom level range with detailed messages"""
+    if not (0 <= min_z <= 22):
+        raise ValueError(f"min_z must be between 0 and 22, got {min_z}")
+    
+    if not (0 <= max_z <= 22):
+        raise ValueError(f"max_z must be between 0 and 22, got {max_z}")
+    
+    if max_z < min_z:
+        raise ValueError(f"max_z ({max_z}) must be >= min_z ({min_z})")
+    
+    # Warnings for large ranges
+    zoom_range = max_z - min_z + 1
+    if zoom_range > 10:
+        print(f"Warning: Large zoom range ({zoom_range} levels) will generate many tiles and may take significant time")
+    
+    if zoom_range > 15:
+        print(f"Consider reducing the zoom range or using more workers for better performance")
+
+
+def ensure_output_dir(output_path: Path, force: bool = False):
+    """Ensure output directory/file path is valid with enhanced checks"""
+    if output_path.suffix.lower() in ['.mbtiles', '.pmtiles']:
+        # File output
+        parent = output_path.parent
+        parent.mkdir(parents=True, exist_ok=True)
+        
+        if output_path.exists():
+            if not force:
+                raise FileExistsError(
+                    f"Output file already exists: {output_path}\n"
+                    f"Use --force to overwrite"
+                )
+            else:
+                output_path.unlink()
+                print(f"Removed existing file: {output_path}")
+    else:
+        # Directory output
+        if output_path.exists():
+            if not output_path.is_dir():
+                raise ValueError(f"Output path exists but is not a directory: {output_path}")
+            
+            if not force:
+                # Check if directory has content
+                if any(output_path.iterdir()):
+                    raise FileExistsError(
+                        f"Output directory already exists and is not empty: {output_path}\n"
+                        f"Use --force to overwrite"
+                    )
+            else:
+                shutil.rmtree(output_path)
+                print(f"Removed existing directory: {output_path}")
+        
+        output_path.mkdir(parents=True, exist_ok=True)
 
 
 def format_file_size(size_bytes: int) -> str:
-    """
-    Format file size in readable units.
-    
-    Args:
-        size_bytes: Size in bytes
-        
-    Returns:
-        str: Formatted size (e.g. "1.5 MB")
-    """
-    for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
+    """Format file size in human readable format"""
+    for unit in ['B', 'KB', 'MB', 'GB']:
         if size_bytes < 1024.0:
             return f"{size_bytes:.1f} {unit}"
         size_bytes /= 1024.0
-    return f"{size_bytes:.1f} PB"
+    return f"{size_bytes:.1f} TB"
 
 
-def get_temp_filename(base_name: str, suffix: str = '.tmp') -> str:
-    """
-    Generate unique temporary filename.
+def estimate_processing_time(zoom_range: int, workers: int = 4) -> str:
+    """Rough estimate of processing time based on zoom range"""
+    base_time_minutes = zoom_range * 2  
+    parallel_factor = min(workers / 4, 1.0)  
     
-    Args:
-        base_name: Base name
-        suffix: File suffix
-        
-    Returns:
-        str: Temporary filename
-    """
-    import tempfile
-    import uuid
+    estimated_minutes = base_time_minutes / parallel_factor
     
-    safe_name = "".join(c for c in base_name if c.isalnum() or c in '-_.')
-    unique_id = str(uuid.uuid4())[:8]
-    
-    return f"{safe_name}_{unique_id}{suffix}"
+    if estimated_minutes < 60:
+        return f"~{int(estimated_minutes)} minutes"
+    else:
+        hours = estimated_minutes / 60
+        return f"~{hours:.1f} hours"

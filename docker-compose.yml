@@ -1,0 +1,28 @@
+# docker-compose.yml
+
+version: '3.8'
+
+services:
+  rgb-weaver:
+    build: .
+    image: rgb-weaver:latest
+    container_name: rgb-weaver
+    volumes:
+      # Mount current directory to /data in container
+      - .:/data
+    working_dir: /data
+    profiles:
+      - manual
+
+  # Service for batch processing
+  rgb-weaver-batch:
+    build: .
+    image: rgb-weaver:latest
+    volumes:
+      - ./input:/data/input:ro    # Read-only input directory
+      - ./output:/data/output     # Writable output directory
+    working_dir: /data
+    environment:
+      - WORKERS=8               # Default to 8 workers
+    profiles:
+      - batch
