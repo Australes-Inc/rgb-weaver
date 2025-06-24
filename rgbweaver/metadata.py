@@ -12,10 +12,8 @@ import rasterio
 from rasterio.warp import transform_bounds
 from rasterio.crs import CRS
 
-from rgbweaver.config import (
-    DEFAULT_TILEJSON_VERSION, DEFAULT_VERSION, DEFAULT_ATTRIBUTION,
-    DEFAULT_ENCODING, DEFAULT_TILE_SIZE
-)
+# Imports corrigés pour utiliser les nouvelles classes de config
+from rgbweaver.config import DefaultValues
 from rgbweaver.utils import RGBWeaverError
 
 logger = logging.getLogger(__name__)
@@ -253,7 +251,7 @@ class TileJSONGenerator:
         format: str = "png",
         scheme: str = "xyz",
         description: Optional[str] = None,
-        attribution: str = DEFAULT_ATTRIBUTION,
+        attribution: str = "",
         tile_url_template: str = "./{z}/{x}/{y}.{format}",
         **kwargs
     ) -> Dict:
@@ -276,11 +274,11 @@ class TileJSONGenerator:
         """
         logger.info(f"Generating TileJSON for '{name}'")
         
-        # Basic TileJSON structure
+        # Basic TileJSON structure using new config values
         tilejson = {
-            "tilejson": DEFAULT_TILEJSON_VERSION,
+            "tilejson": DefaultValues.TILEJSON_VERSION,
             "name": name,
-            "version": DEFAULT_VERSION,
+            "version": "1.0.0",  # Version par défaut pour le tileset
             "scheme": scheme,
             "tiles": [tile_url_template],  # Use template as-is, no formatting
             "minzoom": min_zoom,
@@ -298,8 +296,8 @@ class TileJSONGenerator:
             tilejson["description"] = f"Terrain RGB tiles generated from DEM"
         
         # Add Mapbox extensions for terrain RGB
-        tilejson["encoding"] = DEFAULT_ENCODING
-        tilejson["tileSize"] = DEFAULT_TILE_SIZE
+        tilejson["encoding"] = "mapbox"  # Encoding par défaut pour terrain RGB
+        tilejson["tileSize"] = DefaultValues.TILE_SIZE
         
         # Add custom fields
         for key, value in kwargs.items():
@@ -374,26 +372,58 @@ def extract_dem_metadata(dem_path: Union[str, Path], compute_stats: bool = True)
 
 
 def generate_tilejson(
-    dem_info: DEMInfo,
-    output_path: Union[str, Path],
-    name: str,
+    bounds: Tuple[float, float, float, float],
     min_zoom: int,
     max_zoom: int,
-    **kwargs
-) -> Path:
+    tile_format: str = "png",
+    base_url: str = "",
+    name: str = "Terrain",
+    description: str = "",
+    attribution: str = "",
+    scheme: str = "xyz"
+) -> Dict:
     """
-    Convenience function to generate and save TileJSON.
+    Enhanced convenience function to generate TileJSON from bounds.
     
     Args:
-        dem_info: DEM metadata information
-        output_path: Output file path
-        name: Tileset name
+        bounds: WGS84 bounds (left, bottom, right, top)
         min_zoom: Minimum zoom level
         max_zoom: Maximum zoom level
-        **kwargs: Additional arguments
+        tile_format: Tile format (png, webp)
+        base_url: Base URL for tile server
+        name: Tileset name
+        description: Tileset description
+        attribution: Attribution string
+        scheme: Tile scheme
         
     Returns:
-        Path to saved file
+        TileJSON dictionary
     """
-    generator = TileJSONGenerator(dem_info)
-    return generator.save(output_path, name, min_zoom, max_zoom, **kwargs)
+    left, bottom, right, top = bounds
+    center_lon = (left + right) / 2
+    center_lat = (bottom + top) / 2
+    
+    # Build tile URL template
+    if base_url:
+        if not base_url.endswith('/'):
+            base_url += '/'
+        tile_url = f"{base_url}{{z}}/{{x}}/{{y}}.{tile_format}"
+    else:
+        tile_url = f"{{z}}/{{x}}/{{y}}.{tile_format}"
+    
+    return {
+        "tilejson": DefaultValues.TILEJSON_VERSION,
+        "name": name,
+        "version": "1.0.0",
+        "scheme": scheme,
+        "tiles": [tile_url],
+        "minzoom": min_zoom,
+        "maxzoom": max_zoom,
+        "bounds": [left, bottom, right, top],
+        "center": [center_lon, center_lat, min_zoom],
+        "format": tile_format,
+        "attribution": attribution,
+        "description": description or f"Terrain RGB tiles",
+        "encoding": "mapbox",
+        "tileSize": DefaultValues.TILE_SIZE
+    }

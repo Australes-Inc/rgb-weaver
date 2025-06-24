@@ -1,0 +1,21 @@
+# MANIFEST.in (pour inclure les binaires)
+"""
+# Include binary files
+recursive-include rgbweaver/bin pmtiles-*
+
+# Include documentation
+include README.md
+include LICENSE
+include CHANGELOG.md
+
+# Include configuration files
+include pyproject.toml
+include environment.yml
+
+# Exclude development files
+exclude test_*.py
+exclude .gitignore
+exclude .pre-commit-config.yaml
+prune tests/
+prune .git/
+"""
