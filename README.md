@@ -7,6 +7,8 @@
 [![Docker](https://img.shields.io/badge/docker-available-blue.svg)](https://hub.docker.com/r/diegoposba/rgb-weaver)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<img src="Logo%20RGB%20Weaver.png" alt="Diagramme du projet" width="200" style="display:block; margin:auto;"/>
+
 **rgb-weaver** is a powerful, production-ready tool for generating terrain RGB tiles from Digital Elevation Models (DEMs). It supports multiple output formats and provides a complete workflow from DEM to deployable tiles with just one command.
 
 ## Features
@@ -166,6 +168,7 @@ docker-compose run rgb-weaver dem.tif output.pmtiles --min-z 8 --max-z 14
 - [PMTiles](https://github.com/protomaps/PMTiles)
 - [MBTiles](https://github.com/mapbox/mbtiles-spec)
 - PNG/WebP Tiles Directory + optional [TileJSON](https://github.com/mapbox/tilejson-spec)
+<img src="schemaRGBWeaver.png" alt="Diagramme du projet" width="400" style="display:block; margin:auto;"/>
 
 ## Supported Input Formats
 
